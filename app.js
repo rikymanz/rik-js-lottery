@@ -1,3 +1,5 @@
+// DATABASE
+// img non utilizzate in questa seconda versione
 let arrayImages = [
     { id:'1' , img:'1.jpg', text:'Nicoletta', state:0 } ,
     { id:'2' , img:'2.jpg', text:'Stella', state:0},
@@ -35,37 +37,50 @@ let arrayImages = [
     { id:'34' , img:'34.jpg', text:'Stefania', state:0},
 ];
 
+// ricrea tutte le righe degli utenti nella finestra dell'estrazione.
+// chiamata inizialmente dalla funzione iniziale e alla fine dell'estrazione
 const initNames = ( start ) => {
+    // indice di start iniziale. Per cambiare ogni volta lo start da un nome diverso
+    // se lo start supera la lunghezza dell'array, verra sotratto al numero la lunghezza dell'array (resto)
     let startIndex = start >= arrayImages.length ? start % arrayImages.length : start
+    // non ho idea del perchè ci sia questo schifo di ciclo.. abbassa di 6 l'indice di inizio dell'array...
     for (let index = 0 ; index < 6 ; index++) {
         startIndex = startIndex == 0 ? (arrayImages.length - 1) : (startIndex - 1)
-    }
+    } // fine for
     
+    // cancellazione contenuto di my-box
     document.getElementById('my-box').innerHTML = ''
+    // font standart dell'app
     let fontStandard = 8
+    // elementi da visualizzare nell'app
     let displayedElement = 13
+    // costruzioine di ogni singola riga. Per 13 volte..
     for (let index = 0; index < displayedElement ; index++) {
+        // posizione dell'elemento
         let tempIndex = startIndex + index
         let arrayIndex = tempIndex >= arrayImages.length ? tempIndex % arrayImages.length : tempIndex
         
-        // caloc
+        // creazione div
         const rowDiv = document.createElement('div')
+        // grandezza font, cambia a seconda della posizione
         let fontSize = index < 7 ? ( fontStandard + index * 3 ) : ( fontStandard + ( 36 - index * 3 ) )
         rowDiv.style.fontSize = `${fontSize}px`
-
+        // div centrale
         if( index == 6 ){
             rowDiv.style.border = `1px solid lightgrey`
             rowDiv.style.fontWeight= `bold`
         }
         rowDiv.innerHTML= arrayImages[arrayIndex].text
         document.getElementById('my-box').appendChild(rowDiv) 
-    }
+    } // fine for
 }
 
+// funzione di scroll
 const scrollAndSelect = async ( position ) => {
     let selected = 0
-    let random = Math.floor(Math.random() * 2);
+    let random = Math.floor(Math.random() * 2); // 0,1 o due
     let max = 24 + random;
+    // simulazione di scroll
     for (let index = 0; index < max ; index++) {
         if( index < 20 ) await new Promise(r => setTimeout(r, 100));
         else if( index < 23 ) await new Promise(r => setTimeout(r, 200));
@@ -73,26 +88,12 @@ const scrollAndSelect = async ( position ) => {
         else await new Promise(r => setTimeout(r, 600));
         selected = position + index 
         initNames( selected )  
-    }
+    } // fine for
 
     return selected >= arrayImages.length ? selected % arrayImages.length : selected
-}
+} // fine scrollAndSelect
 
-$( document ).ready(function() {
-    $('.fa-spin').css('display','none');
-    // append righe lista in base all'array iniziale sulla sinistra
-    for( index in arrayImages ){
-        //let img = arrayImages[index].img;
-        let text = arrayImages[index].text;
-        let rowDiv = `<div class="my-row" data-index=${arrayImages[index].id}>
-                            <div>
-                                ${text}
-                            </div>
-                      </div>`;
-        $('#my-list').append(rowDiv);
-    } // fine for
-    initNames(0)
-}); //
+
 
 
 // funzione che riproduce un suono
@@ -134,39 +135,7 @@ function removeImage( tempArray , selectedIndex ){
     return tempArray;
 } // fine removeImage
 
-function showImage( selectedIndex ){
-    // oggetto selezionato, estratto
-    let obj = arrayImages[selectedIndex];
-    // immagine impostata come nascosta
-    $('#output-img > img').hide();
-    // cancellazione nome nel riquadro centrale
-    $('#output-name').html(``);
-    // cancellazione persona dalla lista
-    $('.extracted').css('color','lightgrey');
-    $('.extracted').css('text-decoration','line-through');
-    // impostazione src per immagine corrispondente all oggetto estratto
-    $('#output-img > img').attr(`src`,`./images/${obj.img}`);
-    // visualizzazione icona di spin
-    $('#icon-spin').css('display','inline-block');
-    // funzione che inizia dopo tot secondi
-    setTimeout(
-        function()
-        {
-            // scomparsa icona che gira
-            $('#icon-spin').css('display','none');
-            // conparsa nome della persona estratta
-            $('#output-name').html(`<div>${obj.text}</div>`);
-            // bold nella lista della persona estratta
-            $(`.my-row[data-index=${obj.id}]`).css('font-weight','bold');
-            // calsse per disattivare alla prossima estrazione
-            $(`.my-row[data-index=${obj.id}]`).addClass('extracted');
-            // comparsa dell 'immagine
-            $('#output-img > img').fadeIn();
-            $('#randomButton').prop('disabled',false);
-        }, 3000);
-
-} // fine showImage
-
+// evento click degli utenti. Elimina l'utente. Non verrà poi considerato nell'estrazione
 jQuery(document).on("click", ".my-row", function (event) {
     // id della div cliccata
     let id = $(this).attr('data-index');
@@ -181,3 +150,21 @@ jQuery(document).on("click", ".my-row", function (event) {
     $('.extracted').css('text-decoration','line-through');
     initNames(0)
 }); // fine click .my-row
+
+
+// Quando tutti i componenenti sono caricati. Avvio dell'app
+$( document ).ready(function() {
+    $('.fa-spin').css('display','none');
+    // append righe lista in base all'array iniziale sulla sinistra
+    for( index in arrayImages ){
+        //let img = arrayImages[index].img;
+        let text = arrayImages[index].text;
+        let rowDiv = `<div class="my-row" data-index=${arrayImages[index].id}>
+                            <div>
+                                ${text}
+                            </div>
+                      </div>`;
+        $('#my-list').append(rowDiv);
+    } // fine for
+    initNames(0)
+}); //
